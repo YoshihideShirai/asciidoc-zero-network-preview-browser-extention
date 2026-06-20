@@ -32,8 +32,9 @@ const requiredText = [
   { file: 'src/viewer.ts', text: "'allow-uri-read': false" },
   { file: 'src/viewer.ts', text: "safe: 'safe'" },
   { file: 'public/manifest.json', text: "default-src 'none'" },
-  { file: 'public/network-guards.js', text: "setBlockedGlobal('fetch')" },
-  { file: 'public/network-guards.js', text: "setBlockedGlobal('XMLHttpRequest')" },
+  { file: 'public/network-guards.js', text: "setBlockedGlobal('fetch'," },
+  { file: 'public/network-guards.js', text: "setBlockedGlobal('XMLHttpRequest'," },
+  { file: 'public/network-guards.js', text: 'assertLocalRequest' },
 ];
 
 const failures = [];

@@ -70,8 +70,7 @@ async function renderStoredSource(stored: StoredSource): Promise<void> {
     const body = convertAsciiDoc(stored.source);
     preview.innerHTML = rewriteSourceDiagramBlocks(rewriteImageUris(body, stored.sourceUrl, currentSettings));
     prepareKrokiEmbeddedDiagrams();
-    await renderMath();
-    await renderDiagrams();
+    await Promise.allSettled([renderMath(), renderDiagrams()]);
   } catch (error) {
     preview.innerHTML = `<h1>Preview failed</h1><pre class="preview-error">${escapeHtml(String(error instanceof Error ? error.stack || error.message : error))}</pre>`;
   }
@@ -301,12 +300,37 @@ async function renderMath(): Promise<void> {
 }
 
 async function renderDiagrams(): Promise<void> {
-  await renderMermaid();
-  await renderPlantUml();
-  renderNomnoml();
-  await renderVega();
-  renderWaveDrom();
-  renderBytefield();
+  await Promise.allSettled([
+    runDiagramRenderer('mermaid', renderMermaid),
+    runDiagramRenderer('plantuml', renderPlantUml),
+    runDiagramRenderer('nomnoml', () => {
+      renderNomnoml();
+    }),
+    runDiagramRenderer('vega', renderVega),
+    runDiagramRenderer('wavedrom', () => {
+      renderWaveDrom();
+    }),
+    runDiagramRenderer('bytefield', () => {
+      renderBytefield();
+    }),
+  ]);
+}
+
+async function runDiagramRenderer(diagramType: string, render: () => void | Promise<void>): Promise<void> {
+  try {
+    await render();
+  } catch (error) {
+    markDiagramRendererError(diagramType, error instanceof Error ? error.message : String(error));
+  }
+}
+
+function markDiagramRendererError(diagramType: string, message: string): void {
+  const outputSelector = diagramType === 'mermaid'
+    ? '.mermaid'
+    : `.${diagramType}-output`;
+  for (const output of document.querySelectorAll<HTMLElement>(outputSelector)) {
+    showDiagramError(output, message);
+  }
 }
 
 async function renderMermaid(): Promise<void> {
