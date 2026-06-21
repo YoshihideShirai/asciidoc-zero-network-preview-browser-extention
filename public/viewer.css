@@ -256,88 +256,6 @@ body.preview-width-window {
   content: "+";
 }
 
-.full-file-diff-hunks {
-  margin-top: 20px;
-}
-
-.full-file-diff-hunks h3 {
-  margin: 0 0 10px;
-  color: #57606a;
-  font-size: 1rem;
-}
-
-.full-file-diff-hunk {
-  overflow: hidden;
-  margin-top: 12px;
-  border: 1px solid #d0d7de;
-  border-radius: 6px;
-  background: #fff;
-}
-
-.full-file-diff-hunk h4 {
-  margin: 0;
-  padding: 8px 12px;
-  border-bottom: 1px solid #d0d7de;
-  background: #f6f8fa;
-  color: #57606a;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.full-file-diff-hunk-columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-}
-
-.full-file-diff-hunk-column + .full-file-diff-hunk-column {
-  border-left: 1px solid #d0d7de;
-}
-
-.full-file-diff-hunk-column h5 {
-  margin: 0;
-  padding: 7px 12px;
-  border-bottom: 1px solid #d0d7de;
-  background: #f6f8fa;
-  color: #57606a;
-  font-size: 0.8rem;
-}
-
-.full-file-diff-hunk-rendered {
-  overflow: auto;
-  min-height: 44px;
-  margin-top: 0;
-  padding: 12px 14px 12px 56px;
-  color: #24292f;
-}
-
-.full-file-diff-hunk-rendered::before {
-  float: left;
-  width: 44px;
-  margin-left: -56px;
-  color: #6e7781;
-  text-align: center;
-  content: attr(data-marker);
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.full-file-diff-hunk-before .full-file-diff-hunk-rendered {
-  background: #ffebe9;
-}
-
-.full-file-diff-hunk-after .full-file-diff-hunk-rendered {
-  background: #dafbe1;
-}
-
-.full-file-diff-hunk-rendered > :first-child {
-  margin-top: 0;
-}
-
-.full-file-diff-hunk-rendered > :last-child {
-  margin-bottom: 0;
-}
-
 .full-file-diff-rendered > :first-child {
   margin-top: 0;
 }
@@ -366,12 +284,4 @@ body.preview-width-window {
     border-left: 0;
   }
 
-  .full-file-diff-hunk-columns {
-    grid-template-columns: 1fr;
-  }
-
-  .full-file-diff-hunk-column + .full-file-diff-hunk-column {
-    border-top: 1px solid #d0d7de;
-    border-left: 0;
-  }
 }

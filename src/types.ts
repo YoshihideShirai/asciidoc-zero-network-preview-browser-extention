@@ -1,18 +1,9 @@
 export type PreviewWidth = 'default' | 'window';
 
-export type FullAsciiDocDiffHunk = {
-  oldStart: number;
-  newStart: number;
-  heading?: string;
-  oldSource: string;
-  newSource: string;
-};
-
 export type FullAsciiDocDiffFile = {
   oldPath?: string;
   newPath?: string;
   status: string;
-  hunks?: FullAsciiDocDiffHunk[];
   oldSource?: string;
   newSource?: string;
   oldSourceUrl?: string;
