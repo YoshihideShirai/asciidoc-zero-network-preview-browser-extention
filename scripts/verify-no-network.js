@@ -32,13 +32,15 @@ const requiredText = [
   { file: 'src/viewer.ts', text: "'allow-uri-read': false" },
   { file: 'src/viewer.ts', text: "safe: 'safe'" },
   { file: 'public/manifest.json', text: "default-src 'none'" },
-  { file: 'public/manifest.json', text: 'connect-src https://api.github.com https://raw.githubusercontent.com' },
+  { file: 'public/manifest.json', text: 'connect-src https://api.github.com https://raw.githubusercontent.com https://gitlab.com' },
   { file: 'public/network-guards.js', text: "setBlockedGlobal('fetch'," },
   { file: 'public/network-guards.js', text: "setBlockedGlobal('XMLHttpRequest'," },
   { file: 'public/network-guards.js', text: 'assertLocalRequest' },
   { file: 'src/background.ts', text: 'https://api.github.com' },
   { file: 'src/background.ts', text: 'https://raw.githubusercontent.com' },
+  { file: 'src/background.ts', text: 'https://gitlab.com/api/v4' },
   { file: 'src/background.ts', text: 'store-github-pr-full-diff' },
+  { file: 'src/background.ts', text: 'store-gitlab-mr-full-diff' },
 ];
 
 const failures = [];
@@ -132,5 +134,5 @@ function isAllowedGitHubFullDiffLine(line) {
   const trimmed = line.trim();
   return trimmed === 'const response = await fetch(url, {'
     || trimmed === 'const response = await fetch(url);'
-    || /https:\/\/api\.github\.com|https:\/\/raw\.githubusercontent\.com|GitHub request failed|GitHub raw file request failed/.test(trimmed);
+    || /https:\/\/api\.github\.com|https:\/\/raw\.githubusercontent\.com|https:\/\/gitlab\.com\/api\/v4|GitHub request failed|GitHub raw file request failed|GitLab request failed|GitLab raw file request failed/.test(trimmed);
 }

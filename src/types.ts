@@ -30,9 +30,17 @@ export type StoredFullFileDiffSource = {
 export type StoredSource = StoredAsciiDocSource | StoredFullFileDiffSource;
 
 export type GitHubPullRequestRef = {
+  platform: 'github';
   owner: string;
   repo: string;
   pullNumber: number;
+  sourceUrl?: string;
+};
+
+export type GitLabMergeRequestRef = {
+  platform: 'gitlab';
+  projectPath: string;
+  mergeRequestIid: number;
   sourceUrl?: string;
 };
 

@@ -1,18 +1,18 @@
-import { asciiDocFilePattern, type GitHubPullRequestRef, type StoredSource } from './types';
+import { asciiDocFilePattern, type GitHubPullRequestRef, type GitLabMergeRequestRef, type StoredSource } from './types';
 
 const alreadyHandledKey = 'asciidocZeroNetworkPreviewHandled';
-const pullRequestControlsId = 'asciidoc-zero-network-preview-pr-controls';
+const codeReviewControlsId = 'asciidoc-zero-network-preview-code-review-controls';
 
 void maybeOpenPreview();
-window.addEventListener('turbo:load', installGitHubPullRequestPatchButton);
-window.addEventListener('popstate', installGitHubPullRequestPatchButton);
+window.addEventListener('turbo:load', installCodeReviewPreviewButton);
+window.addEventListener('popstate', installCodeReviewPreviewButton);
 
 async function maybeOpenPreview(): Promise<void> {
   if ((window as any)[alreadyHandledKey]) {
     return;
   }
 
-  installGitHubPullRequestPatchButton();
+  installCodeReviewPreviewButton();
 
   const source = readRawDocumentText();
   if (!source) {
@@ -60,10 +60,10 @@ function looksLikeAsciiDoc(source: string): boolean {
   return /^(=|\[[a-z0-9_-]+\]|include::|image::|:[a-z0-9_-]+:|\w+::)/im.test(source);
 }
 
-function installGitHubPullRequestPatchButton(): void {
-  const pullRequest = getGitHubPullRequestRef();
-  const existingControls = document.getElementById(pullRequestControlsId);
-  if (!pullRequest) {
+function installCodeReviewPreviewButton(): void {
+  const reviewRequest = getCodeReviewRequestRef();
+  const existingControls = document.getElementById(codeReviewControlsId);
+  if (!reviewRequest) {
     existingControls?.remove();
     return;
   }
@@ -72,7 +72,7 @@ function installGitHubPullRequestPatchButton(): void {
   }
 
   const controls = document.createElement('div');
-  controls.id = pullRequestControlsId;
+  controls.id = codeReviewControlsId;
   Object.assign(controls.style, {
     position: 'fixed',
     right: '16px',
@@ -83,14 +83,14 @@ function installGitHubPullRequestPatchButton(): void {
     alignItems: 'center',
   });
 
-  controls.append(createPullRequestPreviewButton('Full diff preview', 'Fetch base and head AsciiDoc files from GitHub and preview full before/after documents', (button) => {
-    void openGitHubPullRequestFullDiff(pullRequest, button);
+  controls.append(createCodeReviewPreviewButton('Full diff preview', `Fetch base and head AsciiDoc files from ${reviewRequest.platform === 'github' ? 'GitHub' : 'GitLab'} and preview full before/after documents`, (button) => {
+    void openCodeReviewFullDiff(reviewRequest, button);
   }));
 
   document.body?.append(controls);
 }
 
-function createPullRequestPreviewButton(label: string, title: string, onClick: (button: HTMLButtonElement) => void): HTMLButtonElement {
+function createCodeReviewPreviewButton(label: string, title: string, onClick: (button: HTMLButtonElement) => void): HTMLButtonElement {
   const button = document.createElement('button');
   button.type = 'button';
   button.textContent = label;
@@ -112,13 +112,13 @@ function createPullRequestPreviewButton(label: string, title: string, onClick: (
   return button;
 }
 
-async function openGitHubPullRequestFullDiff(pullRequest: GitHubPullRequestRef, button: HTMLButtonElement): Promise<void> {
+async function openCodeReviewFullDiff(reviewRequest: GitHubPullRequestRef | GitLabMergeRequestRef, button: HTMLButtonElement): Promise<void> {
   button.disabled = true;
   button.textContent = 'Loading...';
   try {
     const response = await chrome.runtime.sendMessage({
-      type: 'store-github-pr-full-diff',
-      pullRequest,
+      type: reviewRequest.platform === 'github' ? 'store-github-pr-full-diff' : 'store-gitlab-mr-full-diff',
+      reviewRequest,
     });
     if (response?.sourceId) {
       location.assign(chrome.runtime.getURL(`viewer.html?sourceId=${encodeURIComponent(response.sourceId)}`));
@@ -132,6 +132,10 @@ async function openGitHubPullRequestFullDiff(pullRequest: GitHubPullRequestRef, 
   }
 }
 
+function getCodeReviewRequestRef(): GitHubPullRequestRef | GitLabMergeRequestRef | undefined {
+  return getGitHubPullRequestRef() || getGitLabMergeRequestRef();
+}
+
 function getGitHubPullRequestRef(): GitHubPullRequestRef | undefined {
   if (location.hostname !== 'github.com') {
     return undefined;
@@ -143,9 +147,28 @@ function getGitHubPullRequestRef(): GitHubPullRequestRef | undefined {
   }
 
   return {
+    platform: 'github',
     owner: match[1] || '',
     repo: match[2] || '',
     pullNumber: Number.parseInt(match[3] || '0', 10),
+    sourceUrl: location.href,
+  };
+}
+
+function getGitLabMergeRequestRef(): GitLabMergeRequestRef | undefined {
+  if (location.hostname !== 'gitlab.com') {
+    return undefined;
+  }
+
+  const match = location.pathname.match(/^\/(.+)\/-\/merge_requests\/(\d+)(?:\/.*)?$/);
+  if (!match) {
+    return undefined;
+  }
+
+  return {
+    platform: 'gitlab',
+    projectPath: match[1] || '',
+    mergeRequestIid: Number.parseInt(match[2] || '0', 10),
     sourceUrl: location.href,
   };
 }

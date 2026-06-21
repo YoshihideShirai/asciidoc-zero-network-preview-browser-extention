@@ -33,6 +33,6 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "default-src 'none'; connect-src https://api.github.com https://raw.githubusercontent.com; img-src 'self' data: file: http: https:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'wasm-unsafe-eval';"
+    "extension_pages": "default-src 'none'; connect-src https://api.github.com https://raw.githubusercontent.com https://gitlab.com; img-src 'self' data: file: http: https:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'wasm-unsafe-eval';"
   }
 }
