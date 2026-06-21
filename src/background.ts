@@ -1,5 +1,5 @@
 import { saveSource } from './storage';
-import { asciiDocFilePattern, type FullAsciiDocDiffFile, type GitHubPullRequestRef, type StoredSource } from './types';
+import { asciiDocFilePattern, type FullAsciiDocDiffFile, type FullAsciiDocDiffHunk, type GitHubPullRequestRef, type StoredSource } from './types';
 
 type GitHubPull = {
   base?: { sha?: string; repo?: { full_name?: string } };
@@ -9,6 +9,7 @@ type GitHubPull = {
 type GitHubPullFile = {
   filename?: string;
   previous_filename?: string;
+  patch?: string;
   status?: string;
 };
 
@@ -107,6 +108,10 @@ async function fetchFullAsciiDocDiffFile(file: GitHubPullFile, refs: {
   if (newPath) {
     result.newPath = newPath;
   }
+  const hunks = parseGitHubFilePatch(file.patch);
+  if (hunks.length > 0) {
+    result.hunks = hunks;
+  }
 
   try {
     if (oldPath && status !== 'added') {
@@ -122,6 +127,71 @@ async function fetchFullAsciiDocDiffFile(file: GitHubPullFile, refs: {
   }
 
   return result;
+}
+
+function parseGitHubFilePatch(patch: string | undefined): FullAsciiDocDiffHunk[] {
+  if (!patch) {
+    return [];
+  }
+
+  const hunks: FullAsciiDocDiffHunk[] = [];
+  let currentHunk: {
+    oldStart: number;
+    newStart: number;
+    heading?: string;
+    oldLines: string[];
+    newLines: string[];
+  } | undefined;
+
+  const finishHunk = (): void => {
+    if (!currentHunk) {
+      return;
+    }
+    const hunk: FullAsciiDocDiffHunk = {
+      oldStart: currentHunk.oldStart,
+      newStart: currentHunk.newStart,
+      oldSource: currentHunk.oldLines.join('\n'),
+      newSource: currentHunk.newLines.join('\n'),
+    };
+    if (currentHunk.heading) {
+      hunk.heading = currentHunk.heading;
+    }
+    hunks.push(hunk);
+    currentHunk = undefined;
+  };
+
+  for (const line of patch.replace(/\r\n?/g, '\n').split('\n')) {
+    const hunkMatch = line.match(/^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@ ?(.*)$/);
+    if (hunkMatch) {
+      finishHunk();
+      currentHunk = {
+        oldStart: Number.parseInt(hunkMatch[1] || '0', 10),
+        newStart: Number.parseInt(hunkMatch[2] || '0', 10),
+        oldLines: [],
+        newLines: [],
+      };
+      if (hunkMatch[3]) {
+        currentHunk.heading = hunkMatch[3];
+      }
+      continue;
+    }
+
+    if (!currentHunk) {
+      continue;
+    }
+
+    if (line.startsWith('-')) {
+      currentHunk.oldLines.push(line.slice(1));
+    } else if (line.startsWith('+')) {
+      currentHunk.newLines.push(line.slice(1));
+    } else if (line.startsWith(' ')) {
+      currentHunk.oldLines.push(line.slice(1));
+      currentHunk.newLines.push(line.slice(1));
+    }
+  }
+
+  finishHunk();
+  return hunks;
 }
 
 async function fetchGitHubJson<T>(url: string): Promise<T> {

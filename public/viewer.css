@@ -233,14 +233,7 @@ body.preview-width-window {
   padding: 14px 16px;
   border-left: 44px solid #f6f8fa;
   box-shadow: inset 1px 0 0 #d0d7de;
-}
-
-.full-file-diff-before .full-file-diff-rendered {
-  background: linear-gradient(90deg, #ffebe9 0, #ffebe9 100%);
-}
-
-.full-file-diff-after .full-file-diff-rendered {
-  background: linear-gradient(90deg, #dafbe1 0, #dafbe1 100%);
+  background: #fff;
 }
 
 .full-file-diff-rendered::before {
@@ -261,6 +254,82 @@ body.preview-width-window {
 
 .full-file-diff-after .full-file-diff-rendered::before {
   content: "+";
+}
+
+.full-file-diff-hunks {
+  margin-top: 20px;
+}
+
+.full-file-diff-hunks h3 {
+  margin: 0 0 10px;
+  color: #57606a;
+  font-size: 1rem;
+}
+
+.full-file-diff-hunk {
+  overflow: hidden;
+  margin-top: 12px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.full-file-diff-hunk h4 {
+  margin: 0;
+  padding: 8px 12px;
+  border-bottom: 1px solid #d0d7de;
+  background: #f6f8fa;
+  color: #57606a;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.full-file-diff-hunk-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.full-file-diff-hunk-column + .full-file-diff-hunk-column {
+  border-left: 1px solid #d0d7de;
+}
+
+.full-file-diff-hunk-column h5 {
+  margin: 0;
+  padding: 7px 12px;
+  border-bottom: 1px solid #d0d7de;
+  background: #f6f8fa;
+  color: #57606a;
+  font-size: 0.8rem;
+}
+
+.full-file-diff-hunk-source {
+  overflow: auto;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 12px 10px 56px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #24292f;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.full-file-diff-hunk-source::before {
+  float: left;
+  width: 44px;
+  margin-left: -56px;
+  color: #6e7781;
+  text-align: center;
+  content: attr(data-marker);
+}
+
+.full-file-diff-hunk-before .full-file-diff-hunk-source {
+  background: #ffebe9;
+}
+
+.full-file-diff-hunk-after .full-file-diff-hunk-source {
+  background: #dafbe1;
 }
 
 .full-file-diff-rendered > :first-child {
@@ -287,6 +356,15 @@ body.preview-width-window {
   }
 
   .full-file-diff-column + .full-file-diff-column {
+    border-top: 1px solid #d0d7de;
+    border-left: 0;
+  }
+
+  .full-file-diff-hunk-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .full-file-diff-hunk-column + .full-file-diff-hunk-column {
     border-top: 1px solid #d0d7de;
     border-left: 0;
   }

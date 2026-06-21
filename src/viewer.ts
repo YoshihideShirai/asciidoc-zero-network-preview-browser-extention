@@ -176,7 +176,57 @@ function renderFullFileDiffFile(file: Extract<StoredSource, { mode: 'full-file-d
   );
   section.append(columns);
 
+  if (file.hunks && file.hunks.length > 0) {
+    section.append(renderFullFileDiffHunks(file.hunks));
+  }
+
   return section;
+}
+
+function renderFullFileDiffHunks(hunks: NonNullable<Extract<StoredSource, { mode: 'full-file-diff' }>['files'][number]['hunks']>): HTMLElement {
+  const container = document.createElement('section');
+  container.className = 'full-file-diff-hunks';
+
+  const heading = document.createElement('h3');
+  heading.textContent = 'Changed areas';
+  container.append(heading);
+
+  for (const [index, hunk] of hunks.entries()) {
+    const hunkSection = document.createElement('section');
+    hunkSection.className = 'full-file-diff-hunk';
+
+    const hunkHeading = document.createElement('h4');
+    hunkHeading.textContent = `Hunk ${index + 1}: -${hunk.oldStart} / +${hunk.newStart}${hunk.heading ? ` ${hunk.heading}` : ''}`;
+    hunkSection.append(hunkHeading);
+
+    const columns = document.createElement('div');
+    columns.className = 'full-file-diff-hunk-columns';
+    columns.append(
+      renderFullFileDiffHunkColumn('Before', hunk.oldSource, '-'),
+      renderFullFileDiffHunkColumn('After', hunk.newSource, '+'),
+    );
+    hunkSection.append(columns);
+    container.append(hunkSection);
+  }
+
+  return container;
+}
+
+function renderFullFileDiffHunkColumn(label: string, source: string, marker: '-' | '+'): HTMLElement {
+  const column = document.createElement('section');
+  column.className = `full-file-diff-hunk-column full-file-diff-hunk-${label.toLowerCase()}`;
+
+  const heading = document.createElement('h5');
+  heading.textContent = label;
+  column.append(heading);
+
+  const code = document.createElement('pre');
+  code.className = 'full-file-diff-hunk-source';
+  code.dataset.marker = marker;
+  code.textContent = source || 'No content on this side of the hunk.';
+  column.append(code);
+
+  return column;
 }
 
 function getFullFileDiffLabel(file: Extract<StoredSource, { mode: 'full-file-diff' }>['files'][number]): string {
