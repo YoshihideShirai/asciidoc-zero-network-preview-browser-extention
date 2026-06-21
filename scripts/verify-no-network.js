@@ -32,9 +32,13 @@ const requiredText = [
   { file: 'src/viewer.ts', text: "'allow-uri-read': false" },
   { file: 'src/viewer.ts', text: "safe: 'safe'" },
   { file: 'public/manifest.json', text: "default-src 'none'" },
+  { file: 'public/manifest.json', text: 'connect-src https://api.github.com https://raw.githubusercontent.com' },
   { file: 'public/network-guards.js', text: "setBlockedGlobal('fetch'," },
   { file: 'public/network-guards.js', text: "setBlockedGlobal('XMLHttpRequest'," },
   { file: 'public/network-guards.js', text: 'assertLocalRequest' },
+  { file: 'src/background.ts', text: 'https://api.github.com' },
+  { file: 'src/background.ts', text: 'https://raw.githubusercontent.com' },
+  { file: 'src/background.ts', text: 'store-github-pr-full-diff' },
 ];
 
 const failures = [];
@@ -115,8 +119,18 @@ function isAllowedLine(rel, line) {
   if (rel === 'src/content-script.ts' && /http:\/\/\*|https:\/\/\*/.test(line)) {
     return true;
   }
+  if (rel === 'src/background.ts' && isAllowedGitHubFullDiffLine(line)) {
+    return true;
+  }
   if (rel === 'package.json' && /github\.com/.test(line)) {
     return true;
   }
   return false;
+}
+
+function isAllowedGitHubFullDiffLine(line) {
+  const trimmed = line.trim();
+  return trimmed === 'const response = await fetch(url, {'
+    || trimmed === 'const response = await fetch(url);'
+    || /https:\/\/api\.github\.com|https:\/\/raw\.githubusercontent\.com|GitHub request failed|GitHub raw file request failed/.test(trimmed);
 }
