@@ -205,12 +205,32 @@ function renderFullFileDiffFile(file: Extract<StoredSource, { mode: 'full-file-d
     section.append(error);
   }
 
-  const diff = document.createElement('div');
-  diff.className = 'full-file-diff-html doc';
-  diff.innerHTML = renderFullFileHtmlDiff(file);
-  section.append(diff);
+  const diffHtml = renderFullFileHtmlDiff(file);
+  const frame = document.createElement('div');
+  frame.className = 'full-file-diff-frame';
+  frame.append(
+    renderFullFileDiffSide('Before', 'before', diffHtml),
+    renderFullFileDiffSide('After', 'after', diffHtml),
+  );
+  section.append(frame);
 
   return section;
+}
+
+function renderFullFileDiffSide(label: string, side: 'before' | 'after', diffHtml: string): HTMLElement {
+  const column = document.createElement('section');
+  column.className = `full-file-diff-side full-file-diff-side-${side}`;
+
+  const heading = document.createElement('h3');
+  heading.textContent = label;
+  column.append(heading);
+
+  const body = document.createElement('div');
+  body.className = 'full-file-diff-html doc';
+  body.innerHTML = diffHtml;
+  column.append(body);
+
+  return column;
 }
 
 function getFullFileDiffLabel(file: Extract<StoredSource, { mode: 'full-file-diff' }>['files'][number]): string {
