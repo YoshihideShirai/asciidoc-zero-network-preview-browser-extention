@@ -7,7 +7,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YoshihideShirai/asciidoc-zero-network-preview-browser-extention.git"
+    "url": "https://github.com/YoshihideShirai/asciidoc-zero-network-preview-browser-extension.git"
   },
   "scripts": {
     "clean": "rm -rf dist",
