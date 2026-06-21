@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "AsciiDoc Zero-Network Preview",
   "short_name": "AsciiDoc Preview",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Local AsciiDoc preview for Chrome and Edge with MathJax, Mermaid, PlantUML, and Kroki-compatible diagrams.",
   "icons": {
     "16": "media/extension-icon.png",

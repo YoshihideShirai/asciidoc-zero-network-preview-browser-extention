@@ -1,7 +1,7 @@
 {
   "name": "asciidoc-zero-network-preview-browser-extension",
   "displayName": "AsciiDoc Zero-Network Preview",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Chrome and Edge extension for local AsciiDoc preview with bundled renderers and no external preview services.",
   "license": "MIT",
   "type": "module",
