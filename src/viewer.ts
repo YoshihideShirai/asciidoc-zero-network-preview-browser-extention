@@ -169,7 +169,7 @@ function renderFullFileDiffFile(file: Extract<StoredSource, { mode: 'full-file-d
   }
 
   const columns = document.createElement('div');
-  columns.className = 'full-file-diff-columns';
+  columns.className = 'full-file-diff-frame';
   columns.append(
     renderFullFileDiffColumn('Before', file.oldSource || '', file.oldSourceUrl),
     renderFullFileDiffColumn('After', file.newSource || '', file.newSourceUrl),

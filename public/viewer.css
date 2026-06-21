@@ -187,40 +187,80 @@ body.preview-width-window {
   margin: 0 0 12px;
 }
 
-.full-file-diff-columns {
+.full-file-diff-frame {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 16px;
-}
-
-.full-file-diff-column {
-  min-width: 0;
-  border: 1px solid #d9dde3;
+  overflow: hidden;
+  border: 1px solid #d0d7de;
   border-radius: 6px;
   background: #fff;
 }
 
+.full-file-diff-column {
+  min-width: 0;
+  background: #fff;
+}
+
+.full-file-diff-column + .full-file-diff-column {
+  border-left: 1px solid #d0d7de;
+}
+
 .full-file-diff-column h4 {
+  position: sticky;
+  top: 73px;
+  z-index: 2;
   margin: 0;
-  padding: 8px 12px;
-  border-bottom: 1px solid #d9dde3;
-  background: #f7f8fa;
+  padding: 9px 12px;
+  border-bottom: 1px solid #d0d7de;
+  background: #f6f8fa;
+  color: #57606a;
   font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .full-file-diff-before h4 {
-  border-left: 4px solid #d04437;
+  box-shadow: inset 4px 0 0 #cf222e;
 }
 
 .full-file-diff-after h4 {
-  border-left: 4px solid #1f883d;
+  box-shadow: inset 4px 0 0 #1a7f37;
 }
 
 .full-file-diff-rendered {
   overflow: auto;
   min-height: 96px;
   margin-top: 0;
-  padding: 12px;
+  padding: 14px 16px;
+  border-left: 44px solid #f6f8fa;
+  box-shadow: inset 1px 0 0 #d0d7de;
+}
+
+.full-file-diff-before .full-file-diff-rendered {
+  background: linear-gradient(90deg, #ffebe9 0, #ffebe9 100%);
+}
+
+.full-file-diff-after .full-file-diff-rendered {
+  background: linear-gradient(90deg, #dafbe1 0, #dafbe1 100%);
+}
+
+.full-file-diff-rendered::before {
+  display: block;
+  float: left;
+  width: 44px;
+  margin-left: -60px;
+  color: #6e7781;
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.full-file-diff-before .full-file-diff-rendered::before {
+  content: "-";
+}
+
+.full-file-diff-after .full-file-diff-rendered::before {
+  content: "+";
 }
 
 .full-file-diff-rendered > :first-child {
@@ -242,7 +282,12 @@ body.preview-width-window {
     justify-content: flex-start;
   }
 
-  .full-file-diff-columns {
+  .full-file-diff-frame {
     grid-template-columns: 1fr;
+  }
+
+  .full-file-diff-column + .full-file-diff-column {
+    border-top: 1px solid #d0d7de;
+    border-left: 0;
   }
 }
