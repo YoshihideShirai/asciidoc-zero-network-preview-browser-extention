@@ -50,7 +50,7 @@ export type PreviewSettings = {
 
 export const defaultSettings: PreviewSettings = {
   allowedPreviewHosts: [],
-  allowedGitLabHosts: ['gitlab.com'],
+  allowedGitLabHosts: ['https://gitlab.com'],
 };
 
 export const asciiDocFilePattern = /\.(adoc|asciidoc|asc|ad)(?:[?#].*)?$/i;

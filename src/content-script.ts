@@ -183,7 +183,7 @@ function getGitHubPullRequestRef(): GitHubPullRequestRef | undefined {
 }
 
 function getGitLabMergeRequestRef(): GitLabMergeRequestRef | undefined {
-  if (location.protocol !== 'https:') {
+  if (location.protocol !== 'http:' && location.protocol !== 'https:') {
     return undefined;
   }
 
@@ -194,7 +194,7 @@ function getGitLabMergeRequestRef(): GitLabMergeRequestRef | undefined {
 
   return {
     platform: 'gitlab',
-    host: location.host.toLowerCase(),
+    host: `${location.protocol}//${location.host.toLowerCase()}`,
     projectPath: match[1] || '',
     mergeRequestIid: Number.parseInt(match[2] || '0', 10),
     sourceUrl: location.href,

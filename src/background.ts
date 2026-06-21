@@ -321,7 +321,7 @@ function githubApiUrl(path: string): string {
 }
 
 function gitlabApiUrl(host: string, path: string): string {
-  return `https://${host}/api/v4${path}`;
+  return `${host}/api/v4${path}`;
 }
 
 function githubRawUrl(owner: string, repo: string, sha: string, filePath: string): string {

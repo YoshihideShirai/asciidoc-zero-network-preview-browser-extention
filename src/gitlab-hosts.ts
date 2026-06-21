@@ -4,11 +4,11 @@ export function normalizeGitLabHostInput(input: string): string | undefined {
     return undefined;
   }
 
-  if (/^http:\/\//i.test(trimmed)) {
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed) && !/^https?:\/\//i.test(trimmed)) {
     return undefined;
   }
 
-  const value = /^https:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  const value = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
   let url: URL;
   try {
     url = new URL(value);
@@ -16,11 +16,11 @@ export function normalizeGitLabHostInput(input: string): string | undefined {
     return undefined;
   }
 
-  if (url.protocol !== 'https:' || url.username || url.password || url.pathname !== '/' || url.search || url.hash) {
+  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.pathname !== '/' || url.search || url.hash) {
     return undefined;
   }
 
-  return url.host;
+  return `${url.protocol}//${url.host}`;
 }
 
 export function normalizeGitLabHosts(inputs: string[]): string[] {

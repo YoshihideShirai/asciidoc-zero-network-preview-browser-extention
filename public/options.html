@@ -16,9 +16,9 @@
     <p class="note">Remote images are blocked unless their exact host is listed here. Host-only entries allow http and https for that host.</p>
     <label>
       GitLab full diff preview hosts
-      <textarea id="allowed-gitlab-hosts" rows="5" spellcheck="false" placeholder="gitlab.com&#10;gitlab.example.co.jp"></textarea>
+      <textarea id="allowed-gitlab-hosts" rows="5" spellcheck="false" placeholder="gitlab.com&#10;https://gitlab.example.co.jp&#10;http://gitlab.local"></textarea>
     </label>
-    <p class="note">GitLab merge request full diff previews fetch metadata and changed AsciiDoc files only from these HTTPS hosts after clicking Full diff preview.</p>
+    <p class="note">GitLab merge request full diff previews fetch metadata and changed AsciiDoc files only from these exact hosts after clicking Full diff preview. Host-only entries use HTTPS; use http:// for self-hosted HTTP GitLab.</p>
     <div class="actions">
       <button id="save" type="button">Save</button>
       <button id="save-return" type="button" hidden>Save and return</button>

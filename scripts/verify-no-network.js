@@ -32,7 +32,7 @@ const requiredText = [
   { file: 'src/viewer.ts', text: "'allow-uri-read': false" },
   { file: 'src/viewer.ts', text: "safe: 'safe'" },
   { file: 'public/manifest.json', text: "default-src 'none'" },
-  { file: 'public/manifest.json', text: 'connect-src https://api.github.com https://raw.githubusercontent.com https://gitlab.com https://*' },
+  { file: 'public/manifest.json', text: 'connect-src https://api.github.com https://raw.githubusercontent.com https://gitlab.com https://* http://*' },
   { file: 'public/network-guards.js', text: "setBlockedGlobal('fetch'," },
   { file: 'public/network-guards.js', text: "setBlockedGlobal('XMLHttpRequest'," },
   { file: 'public/network-guards.js', text: 'assertLocalRequest' },
@@ -41,7 +41,7 @@ const requiredText = [
   { file: 'src/background.ts', text: 'requireAllowedGitLabHost' },
   { file: 'src/background.ts', text: 'store-github-pr-full-diff' },
   { file: 'src/background.ts', text: 'store-gitlab-mr-full-diff' },
-  { file: 'src/types.ts', text: "allowedGitLabHosts: ['gitlab.com']" },
+  { file: 'src/types.ts', text: "allowedGitLabHosts: ['https://gitlab.com']" },
 ];
 
 const failures = [];
@@ -135,5 +135,5 @@ function isAllowedCodeReviewFullDiffLine(line) {
   const trimmed = line.trim();
   return trimmed === 'const response = await fetch(url, {'
     || trimmed === 'const response = await fetch(url);'
-    || /https:\/\/api\.github\.com|https:\/\/raw\.githubusercontent\.com|https:\/\/\$\{host\}\/api\/v4|GitHub request failed|GitHub raw file request failed|GitLab request failed|GitLab raw file request failed/.test(trimmed);
+    || /https:\/\/api\.github\.com|https:\/\/raw\.githubusercontent\.com|\$\{host\}\/api\/v4|GitHub request failed|GitHub raw file request failed|GitLab request failed|GitLab raw file request failed/.test(trimmed);
 }
