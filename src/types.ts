@@ -1,5 +1,3 @@
-export type PreviewWidth = 'default' | 'window';
-
 export type FullAsciiDocDiffFile = {
   oldPath?: string;
   newPath?: string;
@@ -46,13 +44,11 @@ export type GitLabMergeRequestRef = {
 };
 
 export type PreviewSettings = {
-  previewWidth: PreviewWidth;
   allowedPreviewHosts: string[];
   allowedGitLabHosts: string[];
 };
 
 export const defaultSettings: PreviewSettings = {
-  previewWidth: 'default',
   allowedPreviewHosts: [],
   allowedGitLabHosts: ['gitlab.com'],
 };

@@ -21,7 +21,6 @@ export async function getSettings(): Promise<PreviewSettings> {
   const value = result[settingsKey] as Partial<PreviewSettings> | undefined;
 
   return {
-    previewWidth: value?.previewWidth === 'window' ? 'window' : defaultSettings.previewWidth,
     allowedPreviewHosts: Array.isArray(value?.allowedPreviewHosts)
       ? value.allowedPreviewHosts.filter((host) => typeof host === 'string')
       : defaultSettings.allowedPreviewHosts,

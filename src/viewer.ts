@@ -46,7 +46,6 @@ const preview = document.querySelector<HTMLElement>('#preview');
 const documentTitle = document.querySelector<HTMLElement>('#document-title');
 const openFileButton = document.querySelector<HTMLButtonElement>('#open-file');
 const reloadButton = document.querySelector<HTMLButtonElement>('#reload-source');
-const toggleWidthButton = document.querySelector<HTMLButtonElement>('#toggle-width');
 const optionsLink = document.querySelector<HTMLAnchorElement>('#options-link');
 const fileInput = document.querySelector<HTMLInputElement>('#file-input');
 
@@ -57,7 +56,6 @@ void boot();
 
 async function boot(): Promise<void> {
   currentSettings = await getSettings();
-  applyWidth(currentSettings.previewWidth);
   updateOptionsLink();
 
   const sourceId = new URL(location.href).searchParams.get('sourceId');
@@ -85,10 +83,6 @@ reloadButton?.addEventListener('click', () => {
     void renderStoredSource(currentSource);
   }
 });
-toggleWidthButton?.addEventListener('click', () => {
-  const next = document.body.classList.contains('preview-width-window') ? 'default' : 'window';
-  applyWidth(next);
-});
 fileInput?.addEventListener('change', () => {
   const file = fileInput.files?.[0];
   if (!file) {
@@ -111,7 +105,6 @@ async function renderStoredSource(stored: StoredSource): Promise<void> {
     return;
   }
 
-  document.body.classList.toggle('full-file-diff-mode', stored.mode === 'full-file-diff');
   setTitle(stored.title || stored.sourceUrl || 'AsciiDoc document');
   preview.innerHTML = '<p>Rendering...</p>';
 
@@ -278,7 +271,7 @@ function convertAsciiDoc(source: string): string {
 }
 
 function renderFullFileHtmlDiff(file: Extract<StoredSource, { mode: 'full-file-diff' }>['files'][number]): string {
-  const settings = currentSettings || { previewWidth: 'default', allowedPreviewHosts: [], allowedGitLabHosts: ['gitlab.com'] };
+  const settings = currentSettings || { allowedPreviewHosts: [], allowedGitLabHosts: ['gitlab.com'] };
   const beforeHtml = file.oldSource?.trim()
     ? prepareHtmlForDiff(rewriteSourceDiagramBlocks(rewriteImageUris(convertAsciiDoc(file.oldSource), file.oldSourceUrl, settings)))
     : '';
@@ -756,13 +749,6 @@ function renderEmptyState(): void {
   setTitle('Open an AsciiDoc file');
   if (preview) {
     preview.innerHTML = '<h1>Open an AsciiDoc file</h1><p>Use the Open button, or open a local .adoc, .ad, .asciidoc, or .asc file in Chrome or Edge after enabling file URL access for this extension.</p>';
-  }
-}
-
-function applyWidth(width: 'default' | 'window'): void {
-  document.body.classList.toggle('preview-width-window', width === 'window');
-  if (toggleWidthButton) {
-    toggleWidthButton.setAttribute('aria-pressed', String(width === 'window'));
   }
 }
 

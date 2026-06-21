@@ -10,6 +10,10 @@ body {
   margin: 0;
   color: #20242a;
   background: #fff;
+  --doc-margin: 0;
+  --doc-margin--desktop: 0;
+  --doc-max-width: none;
+  --doc-max-width--desktop: none;
 }
 
 .toolbar {
@@ -85,20 +89,6 @@ main {
 
 .doc {
   margin-top: 1.25rem;
-}
-
-body.preview-width-window {
-  --doc-margin: 0;
-  --doc-margin--desktop: 0;
-  --doc-max-width: none;
-  --doc-max-width--desktop: none;
-}
-
-body.full-file-diff-mode {
-  --doc-margin: 0;
-  --doc-margin--desktop: 0;
-  --doc-max-width: none;
-  --doc-max-width--desktop: none;
 }
 
 .diagram-frame,
