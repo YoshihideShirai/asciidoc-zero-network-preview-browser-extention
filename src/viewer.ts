@@ -220,13 +220,46 @@ function renderFullFileDiffHunkColumn(label: string, source: string, marker: '-'
   heading.textContent = label;
   column.append(heading);
 
-  const code = document.createElement('pre');
-  code.className = 'full-file-diff-hunk-source';
-  code.dataset.marker = marker;
-  code.textContent = source || 'No content on this side of the hunk.';
-  column.append(code);
+  const body = document.createElement('div');
+  body.className = 'full-file-diff-hunk-rendered doc';
+  body.dataset.marker = marker;
+  if (source.trim()) {
+    const converted = convertAsciiDoc(closeUnterminatedDelimitedBlocks(source));
+    body.innerHTML = rewriteSourceDiagramBlocks(rewriteImageUris(converted, undefined, currentSettings || { previewWidth: 'default', allowedPreviewHosts: [] }));
+  } else {
+    const empty = document.createElement('p');
+    empty.className = 'full-file-diff-empty';
+    empty.textContent = 'No content on this side of the hunk.';
+    body.append(empty);
+  }
+  column.append(body);
 
   return column;
+}
+
+function closeUnterminatedDelimitedBlocks(source: string): string {
+  const openDelimiters: string[] = [];
+  const delimiterPattern = /^(?:----+|\.\.\.\.+|____+|\*\*\*\*+|====+|\|===|--|\+\+\+)\s*$/;
+
+  for (const line of source.replace(/\r\n?/g, '\n').split('\n')) {
+    const delimiter = line.trim().match(delimiterPattern)?.[0]?.trim();
+    if (!delimiter) {
+      continue;
+    }
+
+    const openDelimiter = openDelimiters[openDelimiters.length - 1];
+    if (openDelimiter === delimiter) {
+      openDelimiters.pop();
+    } else {
+      openDelimiters.push(delimiter);
+    }
+  }
+
+  if (openDelimiters.length === 0) {
+    return source;
+  }
+
+  return `${source.replace(/\s*$/, '')}\n${openDelimiters.reverse().join('\n')}\n`;
 }
 
 function getFullFileDiffLabel(file: Extract<StoredSource, { mode: 'full-file-diff' }>['files'][number]): string {

@@ -302,34 +302,40 @@ body.preview-width-window {
   font-size: 0.8rem;
 }
 
-.full-file-diff-hunk-source {
+.full-file-diff-hunk-rendered {
   overflow: auto;
   min-height: 44px;
-  margin: 0;
-  padding: 10px 12px 10px 56px;
-  white-space: pre-wrap;
-  word-break: break-word;
+  margin-top: 0;
+  padding: 12px 14px 12px 56px;
   color: #24292f;
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-  font-size: 12px;
-  line-height: 1.45;
 }
 
-.full-file-diff-hunk-source::before {
+.full-file-diff-hunk-rendered::before {
   float: left;
   width: 44px;
   margin-left: -56px;
   color: #6e7781;
   text-align: center;
   content: attr(data-marker);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
-.full-file-diff-hunk-before .full-file-diff-hunk-source {
+.full-file-diff-hunk-before .full-file-diff-hunk-rendered {
   background: #ffebe9;
 }
 
-.full-file-diff-hunk-after .full-file-diff-hunk-source {
+.full-file-diff-hunk-after .full-file-diff-hunk-rendered {
   background: #dafbe1;
+}
+
+.full-file-diff-hunk-rendered > :first-child {
+  margin-top: 0;
+}
+
+.full-file-diff-hunk-rendered > :last-child {
+  margin-bottom: 0;
 }
 
 .full-file-diff-rendered > :first-child {
