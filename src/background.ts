@@ -30,6 +30,10 @@ type GitLabMergeRequestDiff = {
   renamed_file?: boolean;
 };
 
+type GitLabMergeRequestChanges = {
+  changes?: GitLabMergeRequestDiff[];
+};
+
 const githubNamePattern = /^[A-Za-z0-9_.-]+$/;
 const gitlabProjectPathPattern = /^[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)+$/;
 const maxFullDiffFileBytes = 1024 * 1024;
@@ -114,7 +118,7 @@ async function saveGitLabMergeRequestFullDiff(mergeRequest: GitLabMergeRequestRe
   const headSha = requireString(mr.diff_refs?.head_sha, 'Missing merge request head SHA.');
   const targetProjectId = requireNumber(mr.target_project_id, 'Missing merge request target project.');
   const sourceProjectId = requireNumber(mr.source_project_id, 'Missing merge request source project.');
-  const changedFiles = (await fetchAllGitLabMergeRequestDiffs(mergeRequest, host)).filter((file) => (
+  const changedFiles = (await fetchGitLabMergeRequestChangeFiles(mergeRequest, host)).filter((file) => (
     typeof file.new_path === 'string' && asciiDocFilePattern.test(file.new_path)
   ) || (
     typeof file.old_path === 'string' && asciiDocFilePattern.test(file.old_path)
@@ -156,6 +160,30 @@ async function fetchAllGitHubPullFiles(pullRequest: GitHubPullRequestRef): Promi
     }
   }
   return files;
+}
+
+async function fetchGitLabMergeRequestChangeFiles(mergeRequest: GitLabMergeRequestRef, host: string): Promise<GitLabMergeRequestDiff[]> {
+  try {
+    return await fetchGitLabMergeRequestChanges(mergeRequest, host);
+  } catch (changesError) {
+    try {
+      return await fetchAllGitLabMergeRequestDiffs(mergeRequest, host);
+    } catch (diffsError) {
+      throw new Error([
+        'GitLab change file request failed.',
+        `changes endpoint: ${formatErrorMessage(changesError)}`,
+        `diffs endpoint: ${formatErrorMessage(diffsError)}`,
+      ].join(' '));
+    }
+  }
+}
+
+async function fetchGitLabMergeRequestChanges(mergeRequest: GitLabMergeRequestRef, host: string): Promise<GitLabMergeRequestDiff[]> {
+  const projectId = encodeGitLabProjectId(mergeRequest.projectPath);
+  const response = await fetchGitLabJson<GitLabMergeRequestChanges>(
+    gitlabApiUrl(host, `/projects/${projectId}/merge_requests/${mergeRequest.mergeRequestIid}/changes`),
+  );
+  return Array.isArray(response.changes) ? response.changes : [];
 }
 
 async function fetchAllGitLabMergeRequestDiffs(mergeRequest: GitLabMergeRequestRef, host: string): Promise<GitLabMergeRequestDiff[]> {
@@ -261,7 +289,7 @@ async function fetchGitLabJson<T>(url: string): Promise<T> {
     },
   });
   if (!response.ok) {
-    throw new Error(`GitLab request failed: ${response.status} ${response.statusText}`);
+    throw new Error(await formatGitLabResponseError('GitLab request failed', response, url));
   }
   return response.json() as Promise<T>;
 }
@@ -288,7 +316,7 @@ async function fetchGitHubText(url: string): Promise<string> {
 async function fetchGitLabText(url: string): Promise<string> {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`GitLab raw file request failed: ${response.status} ${response.statusText}`);
+    throw new Error(await formatGitLabResponseError('GitLab raw file request failed', response, url));
   }
 
   const sizeHeader = response.headers.get('content-length');
@@ -302,6 +330,28 @@ async function fetchGitLabText(url: string): Promise<string> {
     throw new Error(`AsciiDoc file is larger than ${maxFullDiffFileBytes} characters.`);
   }
   return text;
+}
+
+async function formatGitLabResponseError(prefix: string, response: Response, url: string): Promise<string> {
+  const details = await readErrorResponseBody(response);
+  return `${prefix}: ${response.status} ${response.statusText}; url: ${url}${details ? `; response: ${details}` : ''}`;
+}
+
+async function readErrorResponseBody(response: Response): Promise<string> {
+  try {
+    return truncateErrorDetail(await response.text());
+  } catch (error) {
+    return `Unable to read response body: ${formatErrorMessage(error)}`;
+  }
+}
+
+function truncateErrorDetail(detail: string): string {
+  const normalized = detail.trim().replace(/\s+/g, ' ');
+  return normalized.length > 500 ? `${normalized.slice(0, 500)}…` : normalized;
+}
+
+function formatErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 function validateGitHubPullRequestRef(pullRequest: GitHubPullRequestRef): void {

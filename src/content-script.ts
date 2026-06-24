@@ -90,11 +90,14 @@ async function installCodeReviewPreviewButton(): Promise<void> {
     display: 'flex',
     gap: '8px',
     alignItems: 'center',
+    maxWidth: 'min(720px, calc(100vw - 32px))',
   });
 
+  const status = createCodeReviewPreviewStatus();
   controls.append(createCodeReviewPreviewButton('Full diff preview', `Fetch base and head AsciiDoc files from ${reviewRequest.platform === 'github' ? 'GitHub' : 'GitLab'} and preview full before/after documents`, (button) => {
-    void openCodeReviewFullDiff(reviewRequest, button);
+    void openCodeReviewFullDiff(reviewRequest, button, status);
   }));
+  controls.append(status);
 
   document.body?.append(controls);
 }
@@ -121,6 +124,28 @@ function createCodeReviewPreviewButton(label: string, title: string, onClick: (b
   return button;
 }
 
+function createCodeReviewPreviewStatus(): HTMLElement {
+  const status = document.createElement('pre');
+  status.setAttribute('role', 'status');
+  Object.assign(status.style, {
+    display: 'none',
+    maxWidth: '520px',
+    maxHeight: '160px',
+    overflow: 'auto',
+    margin: '0',
+    padding: '8px 12px',
+    border: '1px solid #cf222e',
+    borderRadius: '6px',
+    background: '#ffebe9',
+    color: '#cf222e',
+    whiteSpace: 'pre-wrap',
+    font: '12px ui-monospace, SFMono-Regular, SFMono, Consolas, "Liberation Mono", monospace',
+    lineHeight: '16px',
+    boxShadow: '0 8px 24px rgba(31, 35, 40, 0.18)',
+  });
+  return status;
+}
+
 function getCodeReviewRequestKey(reviewRequest: GitHubPullRequestRef | GitLabMergeRequestRef): string {
   if (reviewRequest.platform === 'github') {
     return `github:${reviewRequest.owner}/${reviewRequest.repo}#${reviewRequest.pullNumber}`;
@@ -128,9 +153,11 @@ function getCodeReviewRequestKey(reviewRequest: GitHubPullRequestRef | GitLabMer
   return `gitlab:${reviewRequest.host}/${reviewRequest.projectPath}!${reviewRequest.mergeRequestIid}`;
 }
 
-async function openCodeReviewFullDiff(reviewRequest: GitHubPullRequestRef | GitLabMergeRequestRef, button: HTMLButtonElement): Promise<void> {
+async function openCodeReviewFullDiff(reviewRequest: GitHubPullRequestRef | GitLabMergeRequestRef, button: HTMLButtonElement, status: HTMLElement): Promise<void> {
   button.disabled = true;
   button.textContent = 'Loading...';
+  status.style.display = 'none';
+  status.textContent = '';
   try {
     const response = await chrome.runtime.sendMessage({
       type: reviewRequest.platform === 'github' ? 'store-github-pr-full-diff' : 'store-gitlab-mr-full-diff',
@@ -142,9 +169,12 @@ async function openCodeReviewFullDiff(reviewRequest: GitHubPullRequestRef | GitL
     }
     throw new Error(response?.error || 'Full diff preview failed.');
   } catch (error) {
+    const message = String(error instanceof Error ? error.message : error);
     button.disabled = false;
     button.textContent = 'Full diff preview';
-    button.title = String(error instanceof Error ? error.message : error);
+    button.title = message;
+    status.textContent = message;
+    status.style.display = 'block';
   }
 }
 
