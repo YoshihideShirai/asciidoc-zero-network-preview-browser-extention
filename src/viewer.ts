@@ -252,7 +252,7 @@ function convertAsciiDoc(source: string): string {
   registerEmbeddedDiagramBlocks(registry);
   registerEmojiMacro(registry);
   numberedCaptions.register(registry, {
-    defaultNumbering: 'chaptered',
+    defaultNumbering: 'standard',
   });
 
   return String(asciidoctor.convert(source, {
